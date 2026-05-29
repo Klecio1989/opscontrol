@@ -5,9 +5,9 @@ from datetime import date
 
 st.set_page_config(page_title="J&T Controle de Sacas", page_icon="📦", layout="wide")
 
-DB_NAME = "C:/Users/klecio.rodrigues/Desktop/Projetos/controle_sacas.db"
-LOGO_PATH = "C:/Users/klecio.rodrigues/Desktop/Projetos/assets/logo_jt.png"
-MASCOTE_PATH = "C:/Users/klecio.rodrigues/Desktop/Projetos/assets/maomao.png"
+DB_NAME = "controle_sacas.db"
+LOGO_PATH = "assets/logo_jt.png"
+MASCOTE_PATH = "assets/maomao.png"
 
 SC_LISTA = [
     "MG CGE", "BA FEC", "PE JGS", "PR SJS", "RJ SJM", "CE FOR",
