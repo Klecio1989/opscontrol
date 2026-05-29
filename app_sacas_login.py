@@ -347,8 +347,28 @@ def lancar_devolucao(sc_usuario=None):
         quantidade = st.number_input("退回数量 Quantidade devolvida", min_value=1, step=1)
 
         st.markdown("### 📷 照片证据 Evidência da Devolução")
-        foto_importada = st.file_uploader("上传照片 Importar foto", type=["jpg", "jpeg", "png"])
-        foto_camera = st.camera_input("拍照 Tirar foto")
+
+        opcao_foto = st.radio(
+            "选择照片方式 Escolha como deseja enviar a foto",
+            [
+                "Sem foto",
+                "Importar foto",
+                "Tirar foto pela câmera"
+            ],
+            horizontal=True
+        )
+
+        foto_importada = None
+        foto_camera = None
+
+        if opcao_foto == "Importar foto":
+            foto_importada = st.file_uploader(
+                "上传照片 Importar foto",
+                type=["jpg", "jpeg", "png"]
+            )
+
+        elif opcao_foto == "Tirar foto pela câmera":
+            foto_camera = st.camera_input("拍照 Tirar foto")
 
         salvar = st.form_submit_button("保存退回 Salvar devolução")
 
