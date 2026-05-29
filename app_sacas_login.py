@@ -1,20 +1,25 @@
 import streamlit as st
-import sqlite3
 import pandas as pd
 from datetime import date
+from supabase import create_client
+import uuid
 
 st.set_page_config(page_title="OpsControl - 袋类管控 Controle de Sacas", page_icon="📦", layout="wide")
 
-DB_NAME = "controle_sacas.db"
 LOGO_PATH = "assets/logo_jt.png"
 MASCOTE_PATH = "assets/maomao.png"
+
+SUPABASE_URL = st.secrets["sb_publishable_RqkVaN8HlYgovWEtdJAUoA_ASi32kZ8"]
+SUPABASE_KEY = st.secrets["sb_secret_3o7mt1tgNFWdZFZiHoc8qg_3Q6Z7w5dI"]
+SUPABASE_BUCKET = st.secrets["evidencias-sacas"]
+
+supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 SC_LISTA = [
     "MG CGE", "BA FEC", "PE JGS", "PR SJS", "RJ SJM", "CE FOR",
     "SN RAO", "SC BNU", "PI THE", "DC SRR-ES", "RS NSR", "MT CGB",
     "GO GYN", "DF BSB", "RO PVH", "SE AJU", "BA VDC", "PA STM",
-    "PA MRB", "TO PMW", "MS CGR", "ES SRR","DC SRR-ES"
-
+    "PA MRB", "TO PMW", "MS CGR", "ES SRR"
 ]
 
 USUARIOS = {
@@ -41,129 +46,65 @@ USUARIOS = {
     "PMW": {"senha": "pmw123", "perfil": "sc", "sc": "TO PMW"},
     "CGR": {"senha": "cgr123", "perfil": "sc", "sc": "MS CGR"},
     "SRR": {"senha": "srr123", "perfil": "sc", "sc": "ES SRR"},
-    "dcsrr": {"senha": "dcsrr123", "perfil": "sc", "sc": "DC ES SRR"},
 }
 
 st.markdown("""
 <style>
-.stApp {
-    background: linear-gradient(135deg, #f2f2f2 0%, #ffffff 55%, #eeeeee 100%);
-}
-.main-title {
-    font-size: 40px;
-    font-weight: 900;
-    color: #e60012;
-    margin-bottom: 0px;
-}
-.sub-title {
-    font-size: 17px;
-    color: #555555;
-    margin-top: 0px;
-}
-div.stButton > button {
-    background-color: #e60012;
-    color: white;
-    border-radius: 12px;
-    border: none;
-    font-weight: 800;
-}
-div.stButton > button:hover {
-    background-color: #b0000e;
-    color: white;
-}
-[data-testid="stSidebar"] {
-    background-color: #ffffff;
-}
+.stApp {background: linear-gradient(135deg, #f2f2f2 0%, #ffffff 55%, #eeeeee 100%);}
+.main-title {font-size: 40px; font-weight: 900; color: #e60012; margin-bottom: 0px;}
+.sub-title {font-size: 17px; color: #555555; margin-top: 0px;}
+div.stButton > button {background-color: #e60012; color: white; border-radius: 12px; border: none; font-weight: 800;}
+div.stButton > button:hover {background-color: #b0000e; color: white;}
+[data-testid="stSidebar"] {background-color: #ffffff;}
 </style>
 """, unsafe_allow_html=True)
 
 
-def conectar():
-    return sqlite3.connect(DB_NAME)
-
-
-def criar_tabelas():
-    conn = conectar()
-    cursor = conn.cursor()
-
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS metas (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            sc TEXT NOT NULL,
-            quantidade_meta INTEGER NOT NULL,
-            data_cadastro TEXT NOT NULL
-        )
-    """)
-
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS devolucoes (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            data_devolucao TEXT NOT NULL,
-            sc TEXT NOT NULL,
-            id_retorno TEXT NOT NULL,
-            placa TEXT NOT NULL,
-            quantidade INTEGER NOT NULL,
-            usuario TEXT NOT NULL
-        )
-    """)
-
-    conn.commit()
-    conn.close()
-
-
 def inserir_meta(sc, quantidade):
-    conn = conectar()
-    cursor = conn.cursor()
-
-    cursor.execute(
-        """
-        INSERT INTO metas 
-        (sc, quantidade_meta, data_cadastro) 
-        VALUES (?, ?, ?)
-        """,
-        (sc, int(quantidade), str(date.today()))
-    )
-
-    conn.commit()
-    conn.close()
+    supabase.table("metas").insert({
+        "sc": sc,
+        "quantidade_meta": int(quantidade),
+        "data_cadastro": str(date.today())
+    }).execute()
 
 
-def inserir_devolucao(data_devolucao, sc, id_retorno, placa, quantidade, usuario):
-    conn = conectar()
-    cursor = conn.cursor()
-
-    cursor.execute(
-        """
-        INSERT INTO devolucoes 
-        (data_devolucao, sc, id_retorno, placa, quantidade, usuario)
-        VALUES (?, ?, ?, ?, ?, ?)
-        """,
-        (
-            str(data_devolucao),
-            sc,
-            id_retorno.strip(),
-            placa.upper().strip(),
-            int(quantidade),
-            usuario
-        )
-    )
-
-    conn.commit()
-    conn.close()
+def inserir_devolucao(data_devolucao, sc, id_retorno, placa, quantidade, usuario, foto_url):
+    supabase.table("devolucoes").insert({
+        "data_devolucao": str(data_devolucao),
+        "sc": sc,
+        "id_retorno": id_retorno.strip(),
+        "placa": placa.upper().strip(),
+        "quantidade": int(quantidade),
+        "usuario": usuario,
+        "foto_url": foto_url
+    }).execute()
 
 
 def carregar_metas():
-    conn = conectar()
-    df = pd.read_sql_query("SELECT * FROM metas", conn)
-    conn.close()
-    return df
+    res = supabase.table("metas").select("*").execute()
+    return pd.DataFrame(res.data)
 
 
 def carregar_devolucoes():
-    conn = conectar()
-    df = pd.read_sql_query("SELECT * FROM devolucoes", conn)
-    conn.close()
-    return df
+    res = supabase.table("devolucoes").select("*").execute()
+    return pd.DataFrame(res.data)
+
+
+def upload_foto(arquivo, sc, id_retorno):
+    if arquivo is None:
+        return ""
+
+    extensao = arquivo.name.split(".")[-1].lower() if "." in arquivo.name else "jpg"
+    nome_arquivo = f"{sc.replace(' ', '_')}/{id_retorno}_{uuid.uuid4()}.{extensao}"
+    conteudo = arquivo.getvalue()
+
+    supabase.storage.from_(SUPABASE_BUCKET).upload(
+        nome_arquivo,
+        conteudo,
+        {"content-type": arquivo.type}
+    )
+
+    return supabase.storage.from_(SUPABASE_BUCKET).get_public_url(nome_arquivo)
 
 
 def gerar_resumo():
@@ -187,18 +128,10 @@ def gerar_resumo():
         metas_resumo["quantidade_devolvida"] = metas_resumo["quantidade_devolvida"].fillna(0).astype(int)
 
     metas_resumo["saldo_pendente"] = metas_resumo["quantidade_meta"] - metas_resumo["quantidade_devolvida"]
+    metas_resumo["percentual_devolvido"] = ((metas_resumo["quantidade_devolvida"] / metas_resumo["quantidade_meta"]) * 100).fillna(0).round(2)
+    metas_resumo["status"] = metas_resumo["saldo_pendente"].apply(lambda x: "已完成 Concluído" if x <= 0 else "待处理 Pendente")
 
-    metas_resumo["percentual_devolvido"] = (
-        metas_resumo["quantidade_devolvida"] / metas_resumo["quantidade_meta"]
-    ) * 100
-
-    metas_resumo["percentual_devolvido"] = metas_resumo["percentual_devolvido"].fillna(0).round(2)
-
-    metas_resumo["status"] = metas_resumo["saldo_pendente"].apply(
-        lambda x: "已完成 Concluído" if x <= 0 else "待处理 Pendente"
-    )
-
-    metas_resumo = metas_resumo.rename(columns={
+    return metas_resumo.rename(columns={
         "sc": "SC 基地",
         "quantidade_meta": "目标数量 Quantidade Meta",
         "quantidade_devolvida": "已退回 Quantidade Devolvida",
@@ -207,52 +140,34 @@ def gerar_resumo():
         "status": "状态 Status"
     })
 
-    return metas_resumo
-
 
 def normalizar_sc(sc):
     sc = str(sc).strip().upper()
     mapa = {x.upper(): x for x in SC_LISTA}
-
     if sc in mapa:
         return mapa[sc]
-
     for item in SC_LISTA:
-        codigo = item.split()[-1].upper()
-        if sc == codigo:
+        if sc == item.split()[-1].upper():
             return item
-
     return None
 
 
 def cabecalho():
     col1, col2, col3 = st.columns([1, 4, 1])
-
     with col1:
         st.image(LOGO_PATH, width=180)
-
     with col2:
-        st.markdown(
-            '<p class="main-title">袋类管控 Controle de Devolução de Sacas</p>',
-            unsafe_allow_html=True
-        )
-        st.markdown(
-            '<p class="sub-title">全国管理 • 目标 x 已退回 • 管理仪表板 | Gestão Nacional • Meta x Devolvido • Dashboard Executivo</p>',
-            unsafe_allow_html=True
-        )
-
+        st.markdown('<p class="main-title">袋类管控 Controle de Devolução de Sacas</p>', unsafe_allow_html=True)
+        st.markdown('<p class="sub-title">全国管理 • 目标 x 已退回 • 管理仪表板 | Gestão Nacional • Meta x Devolvido • Dashboard Executivo</p>', unsafe_allow_html=True)
     with col3:
         st.image(MASCOTE_PATH, width=120)
-
     st.divider()
 
 
 def login():
     col1, col2, col3 = st.columns([1, 1.2, 1])
-
     with col2:
         st.image(LOGO_PATH, width=260)
-
         st.markdown("## 📦 袋类管控 Controle de Sacas")
         st.markdown("### 登录 Login do Sistema")
 
@@ -261,11 +176,7 @@ def login():
 
         if st.button("进入 Entrar", use_container_width=True):
             usuario_digitado = usuario.strip()
-
-            if usuario_digitado.lower() == "admin":
-                usuario_digitado = "admin"
-            else:
-                usuario_digitado = usuario_digitado.upper()
+            usuario_digitado = "admin" if usuario_digitado.lower() == "admin" else usuario_digitado.upper()
 
             if usuario_digitado in USUARIOS and senha == USUARIOS[usuario_digitado]["senha"]:
                 st.session_state["logado"] = True
@@ -285,7 +196,6 @@ def sair():
 
 def dashboard_admin():
     st.subheader("📊 管理仪表板 Dashboard Executivo")
-
     resumo = gerar_resumo()
 
     if resumo.empty:
@@ -295,13 +205,9 @@ def dashboard_admin():
     total_meta = int(resumo["目标数量 Quantidade Meta"].sum())
     total_devolvido = int(resumo["已退回 Quantidade Devolvida"].sum())
     total_pendente = int(resumo["待退回 Saldo Pendente"].sum())
-
-    percentual_geral = 0
-    if total_meta > 0:
-        percentual_geral = round((total_devolvido / total_meta) * 100, 2)
+    percentual_geral = round((total_devolvido / total_meta) * 100, 2) if total_meta > 0 else 0
 
     c1, c2, c3, c4 = st.columns(4)
-
     c1.metric("应退回总量 Total a devolver", f"{total_meta:,}".replace(",", "."))
     c2.metric("已退回总量 Total devolvido", f"{total_devolvido:,}".replace(",", "."))
     c3.metric("待退回数量 Saldo pendente", f"{total_pendente:,}".replace(",", "."))
@@ -311,10 +217,7 @@ def dashboard_admin():
     st.divider()
 
     filtro = st.selectbox("筛选SC Filtrar SC", ["Todos"] + SC_LISTA)
-    resumo_filtrado = resumo.copy()
-
-    if filtro != "Todos":
-        resumo_filtrado = resumo_filtrado[resumo_filtrado["SC 基地"] == filtro]
+    resumo_filtrado = resumo if filtro == "Todos" else resumo[resumo["SC 基地"] == filtro]
 
     st.subheader("📋 各基地汇总 Resumo por Base")
     st.dataframe(resumo_filtrado, use_container_width=True)
@@ -325,20 +228,12 @@ def dashboard_admin():
 
     st.subheader("🚨 问题基地排名 Ranking Bases Ofensoras")
     ranking = resumo.sort_values(by="待退回 Saldo Pendente", ascending=False)
-    ranking = ranking[ranking["待退回 Saldo Pendente"] > 0][[
-        "SC 基地",
-        "目标数量 Quantidade Meta",
-        "已退回 Quantidade Devolvida",
-        "待退回 Saldo Pendente",
-        "退回率 Percentual Devolvido",
-        "状态 Status"
-    ]]
+    ranking = ranking[ranking["待退回 Saldo Pendente"] > 0]
     st.dataframe(ranking, use_container_width=True)
 
 
 def cadastrar_meta():
     st.subheader("📝 登记应退回数量 Cadastrar Quantidade a Devolver")
-
     with st.form("form_meta"):
         sc = st.selectbox("SC 基地", SC_LISTA)
         quantidade = st.number_input("应退回数量 Quantidade que precisa devolver", min_value=1, step=1)
@@ -351,49 +246,33 @@ def cadastrar_meta():
 
 def cadastro_massivo():
     st.subheader("📥 批量登记目标 Cadastro Massivo de Metas")
-
     st.info("格式 Formato: SC;quantidade. 示例 Exemplo: MG CGE;250 ou CGE;250")
 
-    texto = st.text_area(
-        "粘贴目标数据 Cole as metas aqui",
-        height=230,
-        placeholder="MG CGE;250\nBA FEC;100\nPE JGS;300"
-    )
+    texto = st.text_area("粘贴目标数据 Cole as metas aqui", height=230, placeholder="MG CGE;250\nBA FEC;100\nPE JGS;300")
 
     if st.button("处理粘贴文本 Processar texto colado"):
-        linhas = texto.splitlines()
         total = 0
         erros = []
 
-        for linha in linhas:
+        for linha in texto.splitlines():
             if not linha.strip():
                 continue
-
             try:
                 partes = linha.replace(",", ";").split(";")
-
-                if len(partes) < 2:
-                    erros.append(f"无效行 Linha inválida: {linha}")
-                    continue
-
-                sc_original = partes[0].strip()
+                sc_final = normalizar_sc(partes[0].strip())
                 qtd = int(float(str(partes[1]).strip().replace(".", "").replace(",", ".")))
 
-                sc_final = normalizar_sc(sc_original)
-
                 if sc_final is None:
-                    erros.append(f"SC未找到 SC não localizado: {sc_original}")
+                    erros.append(f"SC未找到 SC não localizado: {partes[0]}")
                     continue
 
                 inserir_meta(sc_final, qtd)
                 total += 1
-
             except Exception as e:
                 erros.append(f"行错误 Erro na linha: {linha} | {e}")
 
         if total > 0:
             st.success(f"{total} 个目标导入成功 metas importadas com sucesso.")
-
         if erros:
             st.warning("部分行未导入 Algumas linhas não foram importadas:")
             st.write(erros)
@@ -401,17 +280,6 @@ def cadastro_massivo():
     st.divider()
 
     st.subheader("📤 导入CSV Importar CSV")
-
-    st.markdown("""
-    CSV文件必须包含以下列 O CSV deve conter as colunas:
-
-    ```text
-    sc;quantidade
-    MG CGE;250
-    BA FEC;100
-    ```
-    """)
-
     arquivo = st.file_uploader("选择CSV文件 Selecione o arquivo CSV", type=["csv"])
 
     if arquivo is not None:
@@ -428,7 +296,6 @@ def cadastro_massivo():
                 st.error("CSV必须包含列: sc 和 quantidade | O CSV precisa ter as colunas: sc e quantidade")
                 return
 
-            st.write("文件预览 Pré-visualização do arquivo:")
             st.dataframe(df, use_container_width=True)
 
             if st.button("导入CSV到系统 Importar CSV para o sistema"):
@@ -436,20 +303,14 @@ def cadastro_massivo():
                 erros = []
 
                 for _, row in df.iterrows():
-                    sc_original = row["sc"]
-                    qtd = int(row["quantidade"])
-                    sc_final = normalizar_sc(sc_original)
-
+                    sc_final = normalizar_sc(row["sc"])
                     if sc_final is None:
-                        erros.append(f"SC未找到 SC não localizado: {sc_original}")
+                        erros.append(f"SC未找到 SC não localizado: {row['sc']}")
                         continue
-
-                    inserir_meta(sc_final, qtd)
+                    inserir_meta(sc_final, int(row["quantidade"]))
                     total += 1
 
-                if total > 0:
-                    st.success(f"{total} 个目标通过CSV导入 metas importadas via CSV.")
-
+                st.success(f"{total} 个目标通过CSV导入 metas importadas via CSV.")
                 if erros:
                     st.warning("部分行未导入 Algumas linhas não foram importadas:")
                     st.write(erros)
@@ -472,20 +333,33 @@ def lancar_devolucao(sc_usuario=None):
         id_retorno = st.text_input("退回ID / 调拨ID ID de retorno / transferência")
         placa = st.text_input("车辆牌照 Placa do veículo")
         quantidade = st.number_input("退回数量 Quantidade devolvida", min_value=1, step=1)
+
+        st.markdown("### 📷 照片证据 Evidência da Devolução")
+        foto_importada = st.file_uploader("上传照片 Importar foto", type=["jpg", "jpeg", "png"])
+        foto_camera = st.camera_input("拍照 Tirar foto")
+
         salvar = st.form_submit_button("保存退回 Salvar devolução")
 
         if salvar:
             if not id_retorno.strip() or not placa.strip():
                 st.error("请填写退回ID和车辆牌照 Preencha o ID de retorno e a placa do veículo.")
             else:
+                foto_url = ""
+                foto_final = foto_camera if foto_camera is not None else foto_importada
+
+                if foto_final is not None:
+                    foto_url = upload_foto(foto_final, sc, id_retorno)
+
                 inserir_devolucao(
                     data_devolucao,
                     sc,
                     id_retorno,
                     placa,
                     quantidade,
-                    st.session_state["usuario"]
+                    st.session_state["usuario"],
+                    foto_url
                 )
+
                 st.success("退回登记成功 Devolução lançada com sucesso.")
 
 
@@ -502,30 +376,33 @@ def historico():
         df = df[df["sc"] == st.session_state["sc"]]
     else:
         filtro = st.selectbox("筛选SC Filtrar SC", ["Todos"] + SC_LISTA)
-
         if filtro != "Todos":
             df = df[df["sc"] == filtro]
 
-    df = df.rename(columns={
-        "id": "ID 编号",
-        "data_devolucao": "退回日期 Data Devolução",
-        "sc": "SC 基地",
-        "id_retorno": "退回ID ID Retorno",
-        "placa": "车辆牌照 Placa",
-        "quantidade": "数量 Quantidade",
-        "usuario": "用户 Usuário"
-    })
+    if "foto_url" in df.columns:
+        df["证据 Evidência"] = df["foto_url"].apply(lambda x: "🔗 Ver foto" if x else "")
 
     st.dataframe(df, use_container_width=True)
+
+    st.subheader("🔍 查看照片证据 Visualizar Evidência")
+
+    fotos = df[df["foto_url"].notna() & (df["foto_url"] != "")] if "foto_url" in df.columns else pd.DataFrame()
+
+    if not fotos.empty:
+        opcoes = {
+            f"{row['sc']} | {row['id_retorno']} | {row['placa']} | {row['data_devolucao']}": row["foto_url"]
+            for _, row in fotos.iterrows()
+        }
+
+        escolha = st.selectbox("选择记录 Selecione o registro", list(opcoes.keys()))
+        st.image(opcoes[escolha], caption=escolha, use_container_width=True)
+        st.link_button("打开照片 Abrir foto", opcoes[escolha])
+    else:
+        st.info("暂无照片证据 Nenhuma evidência com foto registrada.")
 
 
 def limpar_metas():
     st.subheader("🧹 系统清理 Limpeza do Sistema")
-
-    st.warning(
-        "谨慎使用。清理目标不会删除退回历史。 "
-        "Use com cuidado. Limpar metas não apaga o histórico de devoluções."
-    )
 
     opcao = st.radio(
         "选择清理类型 Escolha o que deseja limpar:",
@@ -540,12 +417,7 @@ def limpar_metas():
     if confirmar:
         if opcao == "仅清理目标 Limpar apenas metas":
             if st.button("🧹 仅清理目标 LIMPAR APENAS METAS"):
-                conn = conectar()
-                cursor = conn.cursor()
-                cursor.execute("DELETE FROM metas")
-                conn.commit()
-                conn.close()
-
+                supabase.table("metas").delete().neq("id", -1).execute()
                 st.success("目标已清理，退回历史已保留. Metas removidas, histórico mantido.")
 
         elif opcao == "全部重置 - 清理目标和退回记录 Reset total - limpar metas e devoluções":
@@ -553,13 +425,8 @@ def limpar_metas():
 
             if senha_reset == "admin123":
                 if st.button("🗑️ 全部重置 RESET TOTAL DO SISTEMA"):
-                    conn = conectar()
-                    cursor = conn.cursor()
-                    cursor.execute("DELETE FROM metas")
-                    cursor.execute("DELETE FROM devolucoes")
-                    conn.commit()
-                    conn.close()
-
+                    supabase.table("metas").delete().neq("id", -1).execute()
+                    supabase.table("devolucoes").delete().neq("id", -1).execute()
                     st.success("系统已全部清空 Sistema zerado com sucesso.")
             elif senha_reset:
                 st.error("管理员密码错误 Senha admin incorreta.")
@@ -575,37 +442,19 @@ def exportar():
     st.write("### 汇总数据 Resumo consolidado")
     st.dataframe(resumo, use_container_width=True)
 
-    st.download_button(
-        "下载汇总CSV Baixar resumo CSV",
-        data=resumo.to_csv(index=False, sep=";").encode("utf-8-sig"),
-        file_name="resumo_sacas.csv",
-        mime="text/csv"
-    )
+    st.download_button("下载汇总CSV Baixar resumo CSV", resumo.to_csv(index=False, sep=";").encode("utf-8-sig"), "resumo_sacas.csv", "text/csv")
 
     st.write("### 目标数据 Base de metas")
     st.dataframe(metas, use_container_width=True)
-
-    st.download_button(
-        "下载目标CSV Baixar metas CSV",
-        data=metas.to_csv(index=False, sep=";").encode("utf-8-sig"),
-        file_name="metas_sacas.csv",
-        mime="text/csv"
-    )
+    st.download_button("下载目标CSV Baixar metas CSV", metas.to_csv(index=False, sep=";").encode("utf-8-sig"), "metas_sacas.csv", "text/csv")
 
     st.write("### 退回数据 Base de devoluções")
     st.dataframe(devolucoes, use_container_width=True)
-
-    st.download_button(
-        "下载退回CSV Baixar devoluções CSV",
-        data=devolucoes.to_csv(index=False, sep=";").encode("utf-8-sig"),
-        file_name="devolucoes_sacas.csv",
-        mime="text/csv"
-    )
+    st.download_button("下载退回CSV Baixar devoluções CSV", devolucoes.to_csv(index=False, sep=";").encode("utf-8-sig"), "devolucoes_sacas.csv", "text/csv")
 
 
 def painel_sc():
     sc = st.session_state["sc"]
-
     st.subheader(f"🏢 我的面板 Meu Painel - {sc}")
 
     resumo = gerar_resumo()
@@ -618,13 +467,9 @@ def painel_sc():
     meta = int(resumo_sc["目标数量 Quantidade Meta"].iloc[0])
     devolvido = int(resumo_sc["已退回 Quantidade Devolvida"].iloc[0])
     pendente = int(resumo_sc["待退回 Saldo Pendente"].iloc[0])
-
-    percentual = 0
-    if meta > 0:
-        percentual = round((devolvido / meta) * 100, 2)
+    percentual = round((devolvido / meta) * 100, 2) if meta > 0 else 0
 
     c1, c2, c3, c4 = st.columns(4)
-
     c1.metric("应退回 Precisa devolver", f"{meta:,}".replace(",", "."))
     c2.metric("已退回 Já devolveu", f"{devolvido:,}".replace(",", "."))
     c3.metric("待退回 Falta devolver", f"{pendente:,}".replace(",", "."))
@@ -638,19 +483,14 @@ def painel_sc():
         st.error(f"注意：仍需退回 {pendente} 个 sacas. Atenção: ainda falta devolver {pendente} sacas.")
 
 
-criar_tabelas()
-
 if "logado" not in st.session_state:
     st.session_state["logado"] = False
 
 if not st.session_state["logado"]:
     login()
-
 else:
     cabecalho()
-
     st.sidebar.image(MASCOTE_PATH, width=120)
-
     st.sidebar.title("📦 袋类管控 Controle de Sacas")
     st.sidebar.write(f"用户 Usuário: **{st.session_state['usuario']}**")
     st.sidebar.write(f"权限 Perfil: **{st.session_state['perfil'].upper()}**")
@@ -688,7 +528,6 @@ else:
             limpar_metas()
         elif menu == "导出 Exportar":
             exportar()
-
     else:
         menu = st.sidebar.radio(
             "SC菜单 Menu SC",
