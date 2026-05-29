@@ -95,16 +95,28 @@ def upload_foto(arquivo, sc, id_retorno):
         return ""
 
     extensao = arquivo.name.split(".")[-1].lower() if "." in arquivo.name else "jpg"
-    nome_arquivo = f"{sc.replace(' ', '_')}/{id_retorno}_{uuid.uuid4()}.{extensao}"
+
+    sc_limpo = sc.replace(" ", "_").replace("/", "_")
+    id_limpo = id_retorno.replace(" ", "_").replace("/", "_")
+
+    nome_arquivo = f"{sc_limpo}/{id_limpo}_{uuid.uuid4()}.{extensao}"
     conteudo = arquivo.getvalue()
 
-    supabase.storage.from_(SUPABASE_BUCKET).upload(
-        nome_arquivo,
-        conteudo,
-        {"content-type": arquivo.type}
-    )
+    try:
+        supabase.storage.from_(SUPABASE_BUCKET).upload(
+            path=nome_arquivo,
+            file=conteudo,
+            file_options={
+                "content-type": arquivo.type,
+                "upsert": "true"
+            }
+        )
 
-    return supabase.storage.from_(SUPABASE_BUCKET).get_public_url(nome_arquivo)
+        return supabase.storage.from_(SUPABASE_BUCKET).get_public_url(nome_arquivo)
+
+    except Exception as e:
+        st.error(f"Erro ao enviar foto para o Supabase: {e}")
+        return ""
 
 
 def gerar_resumo():
