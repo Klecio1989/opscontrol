@@ -389,7 +389,7 @@ def lancar_devolucao(sc_usuario=None):
             st.error("Erro ao salvar a foto. A devolução não foi registrada.")
             return
 
-        inserir_devolucao(
+         inserir_devolucao(
             data_devolucao,
             sc,
             id_retorno,
@@ -398,51 +398,6 @@ def lancar_devolucao(sc_usuario=None):
             st.session_state["usuario"],
             foto_url
         )
-
-        st.success("退回登记成功 Devolução lançada com sucesso.")
-
-        foto_importada = None
-        foto_camera = None
-
-        if opcao_foto == "Importar foto":
-            foto_importada = st.file_uploader(
-                "上传照片 Importar foto",
-                type=["jpg", "jpeg", "png"]
-            )
-
-       elif opcao_foto == "Tirar foto pela câmera":
-    st.info("Clique no botão abaixo para abrir a câmera.")
-
-    foto_camera = st.camera_input(
-        "📷 Clique aqui para tirar a foto"
-    )
-    foto_final = foto_camera if foto_camera is not None else foto_importada
-
-if foto_final is None:
-    st.error("照片必填 - A foto é obrigatória.")
-    return
-
-        salvar = st.form_submit_button("保存退回 Salvar devolução")
-
-        if salvar:
-            if not id_retorno.strip() or not placa.strip():
-                st.error("请填写退回ID和车辆牌照 Preencha o ID de retorno e a placa do veículo.")
-            else:
-                foto_url = ""
-                foto_final = foto_camera if foto_camera is not None else foto_importada
-
-                if foto_final is not None:
-                    foto_url = upload_foto(foto_final, sc, id_retorno)
-
-                inserir_devolucao(
-                    data_devolucao,
-                    sc,
-                    id_retorno,
-                    placa,
-                    quantidade,
-                    st.session_state["usuario"],
-                    foto_url
-                )
 
                 st.success("退回登记成功 Devolução lançada com sucesso.")
 
