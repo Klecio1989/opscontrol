@@ -9,9 +9,9 @@ st.set_page_config(page_title="OpsControl - 袋类管控 Controle de Sacas", pag
 LOGO_PATH = "assets/logo_jt.png"
 MASCOTE_PATH = "assets/maomao.png"
 
-SUPABASE_URL = st.secrets["sb_publishable_RqkVaN8HlYgovWEtdJAUoA_ASi32kZ8"]
-SUPABASE_KEY = st.secrets["sb_secret_3o7mt1tgNFWdZFZiHoc8qg_3Q6Z7w5dI"]
-SUPABASE_BUCKET = st.secrets["evidencias-sacas"]
+SUPABASE_URL = st.secrets["SUPABASE_URL"]
+SUPABASE_KEY = st.secrets["SUPABASE_KEY"]
+SUPABASE_BUCKET = st.secrets["SUPABASE_BUCKET"]
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
