@@ -54,37 +54,163 @@ USUARIOS = {
 
 st.markdown("""
 <style>
+
+/* =========================
+   FUNDO GERAL
+========================= */
 .stApp {
-    background: linear-gradient(135deg, #f2f2f2 0%, #ffffff 55%, #eeeeee 100%);
+    background-color: #f4f4f4;
+    color: #222222 !important;
 }
-.main-title {
-    font-size: 40px;
-    font-weight: 900;
-    color: #e60012;
-    margin-bottom: 0px;
+
+section[data-testid="stSidebar"] * {
+    color: #222222 !important;
 }
-.sub-title {
-    font-size: 17px;
-    color: #555555;
-    margin-top: 0px;
-}
-div.stButton > button {
-    background-color: #e60012;
-    color: white;
-    border-radius: 12px;
-    border: none;
-    font-weight: 800;
-}
-div.stButton > button:hover {
-    background-color: #b0000e;
-    color: white;
-}
+
+/* =========================
+   SIDEBAR
+========================= */
 [data-testid="stSidebar"] {
     background-color: #ffffff;
+    border-right: 1px solid #e5e5e5;
 }
-</style>
-""", unsafe_allow_html=True)
 
+/* =========================
+   CABEÇALHO
+========================= */
+.ops-header {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 15px;
+    box-shadow: 0px 3px 12px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+}
+
+/* =========================
+   TITULOS
+========================= */
+.main-title {
+    font-size: 32px;
+    font-weight: 900;
+    color: #e60012 !important;
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+.sub-title {
+    font-size: 16px;
+    color: #555555 !important;
+    font-weight: 600;
+    text-align: center;
+}
+
+/* =========================
+   TEXTO GERAL
+========================= */
+h1,h2,h3,h4,h5,h6,p,label,span {
+    color: #222222 !important;
+}
+
+/* =========================
+   INPUTS
+========================= */
+.stTextInput input,
+.stNumberInput input,
+.stDateInput input,
+textarea {
+    background-color: white !important;
+    color: black !important;
+    border-radius: 8px;
+}
+
+/* =========================
+   SELECTBOX
+========================= */
+[data-baseweb="select"] {
+    background-color: white !important;
+    color: black !important;
+}
+
+/* =========================
+   RADIO
+========================= */
+div[role="radiogroup"] {
+    background-color: white;
+    padding: 10px;
+    border-radius: 10px;
+}
+
+/* =========================
+   MÉTRICAS
+========================= */
+[data-testid="metric-container"] {
+    background-color: white;
+    border-radius: 12px;
+    padding: 12px;
+    box-shadow: 0px 2px 8px rgba(0,0,0,0.08);
+}
+
+/* =========================
+   DATAFRAMES
+========================= */
+[data-testid="stDataFrame"] {
+    background-color: white;
+    border-radius: 10px;
+}
+
+/* =========================
+   BOTÕES
+========================= */
+.stButton > button {
+    background-color: #e60012;
+    color: white !important;
+    border: none;
+    border-radius: 10px;
+    font-weight: bold;
+    height: 45px;
+}
+
+.stButton > button:hover {
+    background-color: #c70010;
+    color: white !important;
+}
+
+/* =========================
+   ALERTAS
+========================= */
+[data-testid="stAlert"] {
+    border-radius: 10px;
+}
+
+/* =========================
+   MOBILE
+========================= */
+@media (max-width: 768px) {
+
+    .main-title {
+        font-size: 22px;
+    }
+
+    .sub-title {
+        font-size: 11px;
+    }
+
+    .ops-header {
+        padding: 12px;
+    }
+
+    [data-testid="metric-container"] {
+        padding: 8px;
+    }
+
+    .stButton > button {
+        width: 100%;
+    }
+}
+
+</style>
+
+""", unsafe_allow_html=True)
 
 def inserir_meta(sc, quantidade):
     supabase.table("metas").insert({
@@ -200,48 +326,86 @@ def normalizar_sc(sc):
 
 
 def cabecalho():
-    col1, col2, col3 = st.columns([1, 4, 1])
+
+    st.markdown("""
+    <div class="ops-header">
+    """, unsafe_allow_html=True)
+
+    col1, col2, col3 = st.columns([1,4,1])
 
     with col1:
-        st.image(LOGO_PATH, width=180)
+        st.image(LOGO_PATH, width=140)
 
     with col2:
-        st.markdown(
-            '<p class="main-title">袋类管控 Controle de Devolução de Sacas</p>',
-            unsafe_allow_html=True
-        )
-        st.markdown(
-            '<p class="sub-title">全国管理 • 目标 x 已退回 • 管理仪表板 | Gestão Nacional • Meta x Devolvido • Dashboard Executivo</p>',
-            unsafe_allow_html=True
-        )
+        st.markdown("""
+        <div class="main-title">
+        袋类管控 Controle de Sacas
+        </div>
+
+        <div class="sub-title">
+        Gestão Nacional de Devolução de Sacas
+        </div>
+        """, unsafe_allow_html=True)
 
     with col3:
-        st.image(MASCOTE_PATH, width=120)
+        st.image(MASCOTE_PATH, width=90)
 
-    st.divider()
+    st.markdown("</div>", unsafe_allow_html=True)
 
 
 def login():
     col1, col2, col3 = st.columns([1, 1.2, 1])
 
     with col2:
+
         st.image(LOGO_PATH, width=260)
-        st.markdown("## 📦 袋类管控 Controle de Sacas")
-        st.markdown("### 登录 Login do Sistema")
+
+        st.markdown("""
+        <div style="
+        background:white;
+        padding:15px;
+        border-radius:12px;
+        text-align:center;
+        margin-bottom:15px;
+        box-shadow:0px 2px 8px rgba(0,0,0,0.08);
+        ">
+
+        <h2 style="color:#e60012;">
+        📦 袋类管控 Controle de Sacas
+        </h2>
+
+        <h4 style="color:#333333;">
+        登录 Login do Sistema
+        </h4>
+
+        </div>
+        """, unsafe_allow_html=True)
 
         usuario = st.text_input("用户 Usuário")
         senha = st.text_input("密码 Senha", type="password")
 
         if st.button("进入 Entrar", use_container_width=True):
-            usuario_digitado = usuario.strip()
-            usuario_digitado = "admin" if usuario_digitado.lower() == "admin" else usuario_digitado.upper()
 
-            if usuario_digitado in USUARIOS and senha == USUARIOS[usuario_digitado]["senha"]:
+            usuario_digitado = usuario.strip()
+
+            usuario_digitado = (
+                "admin"
+                if usuario_digitado.lower() == "admin"
+                else usuario_digitado.upper()
+            )
+
+            if (
+                usuario_digitado in USUARIOS
+                and senha == USUARIOS[usuario_digitado]["senha"]
+            ):
+
                 st.session_state["logado"] = True
                 st.session_state["usuario"] = usuario_digitado
                 st.session_state["perfil"] = USUARIOS[usuario_digitado]["perfil"]
                 st.session_state["sc"] = USUARIOS[usuario_digitado]["sc"]
+
                 st.rerun()
+
             else:
                 st.error("用户名或密码无效 Usuário ou senha inválidos.")
 
