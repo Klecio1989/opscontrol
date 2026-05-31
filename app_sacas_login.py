@@ -762,12 +762,14 @@ def painel_sc():
     devolvido = int(resumo_sc["已退回 Quantidade Devolvida"].iloc[0])
     pendente = int(resumo_sc["待退回 Saldo Pendente"].iloc[0])
     percentual = round((devolvido / meta) * 100, 2) if meta > 0 else 0
+    risco_financeiro = pendente * VALOR_UNITARIO_SACA
 
-    c1, c2, c3, c4 = st.columns(4)
+    c1, c2, c3, c4,c5 = st.columns(5)
     c1.metric("应退回 Precisa devolver", f"{meta:,}".replace(",", "."))
     c2.metric("已退回 Já devolveu", f"{devolvido:,}".replace(",", "."))
     c3.metric("待退回 Falta devolver", f"{pendente:,}".replace(",", "."))
     c4.metric("退回率 % Devolvido", f"{percentual}%")
+    c5.metric("💰金融风险 Risco Financeiro", f"R$ {risco_financeiro:,.2f}")
 
     st.progress(min(percentual / 100, 1.0))
 
