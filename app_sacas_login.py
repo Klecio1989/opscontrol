@@ -19,6 +19,8 @@ SUPABASE_BUCKET = st.secrets["SUPABASE_BUCKET"]
 
 supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
+VALOR_UNITARIO_SACA = 3.00
+
 SC_LISTA = [
     "MG CGE", "BA FEC", "PE JGS", "PR SJS", "RJ SJM", "CE FOR",
     "SN RAO", "SC BNU", "PI THE", "DC SRR-ES", "RS NSR", "MT CGB",
@@ -297,6 +299,10 @@ def gerar_resumo():
         (metas_resumo["quantidade_devolvida"] / metas_resumo["quantidade_meta"]) * 100
     ).fillna(0).round(2)
 
+    metas_resumo["valor_financeiro"] = (
+    metas_resumo["saldo_pendente"] * VALOR_UNITARIO_SACA
+    ).round(2)
+
     metas_resumo["status"] = metas_resumo["saldo_pendente"].apply(
         lambda x: "已完成 Concluído" if x <= 0 else "待处理 Pendente"
     )
@@ -307,7 +313,9 @@ def gerar_resumo():
         "quantidade_devolvida": "已退回 Quantidade Devolvida",
         "saldo_pendente": "待退回 Saldo Pendente",
         "percentual_devolvido": "退回率 Percentual Devolvido",
+        "valor_financeiro": "💰 Valor Financeiro",
         "status": "状态 Status"
+        
     })
 
 
@@ -428,12 +436,14 @@ def dashboard_admin():
     total_devolvido = int(resumo["已退回 Quantidade Devolvida"].sum())
     total_pendente = int(resumo["待退回 Saldo Pendente"].sum())
     percentual_geral = round((total_devolvido / total_meta) * 100, 2) if total_meta > 0 else 0
+    total_valor = resumo["💰 Valor Financeiro"].sum()
 
-    c1, c2, c3, c4 = st.columns(4)
+    c1, c2, c3, c4, c5 = st.columns(5)
     c1.metric("应退回总量 Total a devolver", f"{total_meta:,}".replace(",", "."))
     c2.metric("已退回总量 Total devolvido", f"{total_devolvido:,}".replace(",", "."))
     c3.metric("待退回数量 Saldo pendente", f"{total_pendente:,}".replace(",", "."))
     c4.metric("退回率 % Devolvido", f"{percentual_geral}%")
+    c5.metric("💰 Valor Financeiro", f"R$ {total_valor:,.2f}")
 
     st.progress(min(percentual_geral / 100, 1.0))
     st.divider()
