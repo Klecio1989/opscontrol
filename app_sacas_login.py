@@ -220,7 +220,17 @@ def inserir_meta(sc, quantidade):
     }).execute()
 
 
-def inserir_devolucao(data_devolucao, sc, id_retorno, placa, quantidade, usuario, foto_url):
+def inserir_devolucao(
+    data_devolucao,
+    sc,
+    id_retorno,
+    placa,
+    quantidade,
+    st.session_state["usuario"],
+    foto_url) 
+    if salvou:
+    st.success("退回登记成功 Devolução lançada com sucesso.")    :
+
     supabase.table("devolucoes").insert({
         "data_devolucao": str(data_devolucao),
         "sc": sc,
