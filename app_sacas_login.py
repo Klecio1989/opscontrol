@@ -443,7 +443,7 @@ def dashboard_admin():
     c2.metric("已退回总量 Total devolvido", f"{total_devolvido:,}".replace(",", "."))
     c3.metric("待退回数量 Saldo pendente", f"{total_pendente:,}".replace(",", "."))
     c4.metric("退回率 % Devolvido", f"{percentual_geral}%")
-    c5.metric("💰 Valor Financeiro", f"R$ {total_valor:,.2f}")
+    c5.metric("💰 金融风险 Risco Financeiro", f"R$ {total_valor:,.2f}")
 
     st.progress(min(percentual_geral / 100, 1.0))
     st.divider()
