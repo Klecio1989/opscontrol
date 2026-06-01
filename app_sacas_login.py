@@ -25,12 +25,13 @@ SC_LISTA = [
     "MG CGE", "BA FEC", "PE JGS", "PR SJS", "RJ SJM", "CE FOR",
     "SN RAO", "SC BNU", "PI THE", "DC SRR-ES", "RS NSR", "MT CGB",
     "GO GYN", "DF BSB", "RO PVH", "SE AJU", "BA VDC", "PA STM",
-    "PA MRB", "TO PMW", "MS CGR", "ES SRR","PA ANA"
+    "PA MRB", "TO PMW", "MS CGR", "ES SRR","PA ANA","SPS BRE"
 
 ]
 
 USUARIOS = {
     "admin": {"senha": "admin123", "perfil": "admin", "sc": "TODOS"},
+    "BRE": {"senha": "bre123", "perfil": "sc", "sc": "SPS BRE"},
     "CGE": {"senha": "cge123", "perfil": "sc", "sc": "MG CGE"},
     "FEC": {"senha": "fec123", "perfil": "sc", "sc": "BA FEC"},
     "JGS": {"senha": "jgs123", "perfil": "sc", "sc": "PE JGS"},
