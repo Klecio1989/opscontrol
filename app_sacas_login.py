@@ -582,9 +582,18 @@ def lancar_devolucao(sc_usuario=None):
 
     st.markdown("### 📷 Foto Obrigatória da Devolução")
 
-    foto_final = st.camera_input(
-    "📷 Tire uma foto da devolução para registrar a evidência"
-    )
+
+
+    if "abrir_camera" not in st.session_state:
+     st.session_state["abrir_camera"] = False
+
+    if st.button("📷 Abrir câmera para tirar foto"):
+     st.session_state["abrir_camera"] = True
+
+    foto_final = None
+
+    if st.session_state["abrir_camera"]:
+     foto_final = st.camera_input("📷 Tire a foto da devolução")
 
     if foto_final is not None:
         st.image(
