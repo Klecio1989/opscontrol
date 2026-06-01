@@ -232,7 +232,9 @@ def inserir_devolucao(data_devolucao, sc, id_retorno, placa, quantidade, usuario
         "placa": placa.upper().strip(),
         "quantidade": int(quantidade),
         "usuario": usuario,
-        "foto_url": foto_url
+        "foto_url": foto_url,
+        "observacao": observacao,
+        
     }).execute()
 
 
@@ -471,7 +473,7 @@ def cadastrar_meta():
 
     with st.form("form_meta"):
         sc = st.selectbox("SC 基地", SC_LISTA)
-        quantidade = st.number_input("应退回数量 Quantidade que precisa devolver", min_value=1, step=1)
+        quantidade = st.number_input("应退回数量 Quantidade que precisa devolver", min_value=1, step=1)                        
         salvar = st.form_submit_button("保存数量 Salvar quantidade")
 
         if salvar:
@@ -577,6 +579,10 @@ def lancar_devolucao(sc_usuario=None):
     id_retorno = st.text_input("退回ID / 调拨ID ID de retorno / transferência")
     placa = st.text_input("车辆牌照 Placa do veículo")
     quantidade = st.number_input("退回数量 Quantidade devolvida", min_value=1, step=1)
+    observacao = st.text_area(
+    "📝 Observação",
+    placeholder="Digite alguma observação sobre a devolução..."
+)
 
     st.markdown("### 📷 照片证据 Evidência da Devolução")
 
@@ -628,7 +634,8 @@ def lancar_devolucao(sc_usuario=None):
             placa,
             quantidade,
             st.session_state["usuario"],
-            foto_url
+            foto_url,
+            observacao
         )
 
         st.success("退回登记成功 Devolução lançada com sucesso.")
