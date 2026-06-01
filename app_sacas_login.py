@@ -580,27 +580,11 @@ def lancar_devolucao(sc_usuario=None):
 
     st.markdown("### 📷 照片证据 Evidência da Devolução")
 
-    opcao_foto = st.radio(
-        "选择照片方式 Escolha como deseja enviar a foto",
-        ["Importar foto", "Tirar foto pela câmera"],
-        horizontal=True
+    st.markdown("### 📷 Foto Obrigatória da Devolução")
+
+    foto_final = st.camera_input(
+    "📷 Tire uma foto da devolução para registrar a evidência"
     )
-
-    foto_importada = None
-    foto_camera = None
-
-    if opcao_foto == "Importar foto":
-        foto_importada = st.file_uploader(
-            "上传照片 Importar foto",
-            type=["jpg", "jpeg", "png"]
-        )
-
-    if opcao_foto == "Tirar foto pela câmera":
-        foto_camera = st.camera_input(
-            "📷 Clique aqui para tirar a foto"
-        )
-
-    foto_final = foto_camera if foto_camera is not None else foto_importada
 
     if foto_final is not None:
         st.image(
