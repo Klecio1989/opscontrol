@@ -469,7 +469,7 @@ def dashboard_admin():
       )
     if not grafico.empty:
         chart = alt.Chart(grafico).mark_bar(
-          color="#B71C1C"
+    color="#B71C1C"
         ).encode(
             x=alt.X(
                 "SC 基地:N",
@@ -658,18 +658,39 @@ def lancar_devolucao(sc_usuario=None):
             st.error("Erro ao salvar a foto. A devolução não foi registrada.")
             return
 
-        inserir_devolucao(
-            data_devolucao,
-            sc,
-            id_retorno,
-            placa,
-            quantidade,
-            st.session_state["usuario"],
-            foto_url,
-            observacao
-        )
+def inserir_devolucao(
+    data_devolucao,
+    sc,
+    id_retorno,
+    placa,
+    quantidade,
+    usuario,
+    foto_url,
+    observacao
+):
+    dados = {
+        "data_devolucao": str(data_devolucao),
+        "sc": sc,
+        "id_retorno": id_retorno.strip(),
+        "placa": placa.upper().strip(),
+        "quantidade": int(quantidade),
+        "usuario": usuario,
+        "foto_url": foto_url,
+        "observacao": observacao
+    }
 
-        st.success("退回登记成功 Devolução lançada com sucesso.")
+    try:
+        supabase.table("devolucoes").insert(dados).execute()
+        return True
+
+    except Exception as e:
+        st.error("Erro ao salvar devolução no Supabase")
+        st.error(str(e))
+        st.json(dados)
+        return False
+            
+
+st.success("退回登记成功 Devolução lançada com sucesso.")
 
 
 def historico():
