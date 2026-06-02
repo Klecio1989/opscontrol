@@ -461,20 +461,34 @@ def dashboard_admin():
     st.subheader("📋 各基地汇总 Resumo por Base")
     st.dataframe(resumo_filtrado, use_container_width=True)
 
-    
+
     st.subheader("📉 各SC待退回数量 Saldo pendente por SC")
     grafico = (
-         resumo_filtrado[resumo_filtrado["待退回 Saldo Pendente"] > 0]
-    .sort_values(by="待退回 Saldo Pendente", ascending=False)
-)
+          resumo_filtrado[resumo_filtrado["待退回 Saldo Pendente"] > 0]
+          .sort_values(by="待退回 Saldo Pendente", ascending=False)
+      )
     if not grafico.empty:
-      grafico = grafico.set_index("SC 基地")
-
-      st.bar_chart(
-         grafico["待退回 Saldo Pendente"]
-    )   
+        chart = alt.Chart(grafico).mark_bar().encode(
+            x=alt.X(
+                "SC 基地:N",
+                sort="-y",
+                title="SC"
+            ),
+            y=alt.Y(
+                "待退回 Saldo Pendente:Q",
+                title="Saldo Pendente"
+            ),
+            tooltip=[
+                "SC 基地",
+                "待退回 Saldo Pendente"
+                ]
+            ).properties(
+                height=420
+            )
+        st.altair_chart(chart, use_container_width=True)
     else:
-        st.info("Nenhuma SC com saldo pendente.")
+            st.info("Nenhuma SC com saldo pendente.")  
+    
 
 
     st.subheader("🚨 问题基地排名 Ranking Bases Ofensoras")
