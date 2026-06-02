@@ -468,7 +468,9 @@ def dashboard_admin():
           .sort_values(by="待退回 Saldo Pendente", ascending=False)
       )
     if not grafico.empty:
-        chart = alt.Chart(grafico).mark_bar().encode(
+        chart = alt.Chart(grafico).mark_bar(
+          color="#B71C1C"
+        ).encode(
             x=alt.X(
                 "SC 基地:N",
                 sort="-y",
