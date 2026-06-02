@@ -226,9 +226,17 @@ def inserir_meta(sc, quantidade):
         "data_cadastro": str(date.today())
     }).execute()
 
-
-def inserir_devolucao(data_devolucao, sc, id_retorno, placa, quantidade, usuario, foto_url):
-    supabase.table("devolucoes").insert({
+def inserir_devolucao(
+    data_devolucao,
+    sc,
+    id_retorno,
+    placa,
+    quantidade,
+    usuario,
+    foto_url,
+    observacao
+):
+    dados = {
         "data_devolucao": str(data_devolucao),
         "sc": sc,
         "id_retorno": id_retorno.strip(),
@@ -236,9 +244,17 @@ def inserir_devolucao(data_devolucao, sc, id_retorno, placa, quantidade, usuario
         "quantidade": int(quantidade),
         "usuario": usuario,
         "foto_url": foto_url,
-        "observacao": observacao,
-        
-    }).execute()
+        "observacao": observacao
+    }
+
+    try:
+        supabase.table("devolucoes").insert(dados).execute()
+        return True
+    except Exception as e:
+        st.error("Erro ao salvar devolução no Supabase")
+        st.error(str(e))
+        st.json(dados)
+        return False
 
 
 def carregar_metas():
@@ -658,37 +674,20 @@ def lancar_devolucao(sc_usuario=None):
             st.error("Erro ao salvar a foto. A devolução não foi registrada.")
             return
 
-def inserir_devolucao(
-    data_devolucao,
-    sc,
-    id_retorno,
-    placa,
-    quantidade,
-    usuario,
-    foto_url,
-    observacao
-):
-    dados = {
-        "data_devolucao": str(data_devolucao),
-        "sc": sc,
-        "id_retorno": id_retorno.strip(),
-        "placa": placa.upper().strip(),
-        "quantidade": int(quantidade),
-        "usuario": usuario,
-        "foto_url": foto_url,
-        "observacao": observacao
-    }
 
-    try:
-        supabase.table("devolucoes").insert(dados).execute()
-        return True
+        salvou = inserir_devolucao(
+          data_devolucao,
+          sc,
+          id_retorno,
+          placa,
+          quantidade,
+          st.session_state["usuario"],
+          foto_url,
+          observacao
+)
 
-    except Exception as e:
-        st.error("Erro ao salvar devolução no Supabase")
-        st.error(str(e))
-        st.json(dados)
-        return False
-            
+        if salvou:
+          st.success("退回登记成功 Devolução lançada com sucesso.")               
 
     
 
