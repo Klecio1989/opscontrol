@@ -690,7 +690,7 @@ def inserir_devolucao(
         return False
             
 
-st.success("退回登记成功 Devolução lançada com sucesso.")
+    
 
 
 def historico():
