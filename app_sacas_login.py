@@ -3,6 +3,7 @@ import pandas as pd
 from datetime import date
 from supabase import create_client
 import uuid
+import altair as alt
 
 st.set_page_config(
     page_title="OpsControl - 袋类管控 Controle de Sacas",
@@ -469,22 +470,21 @@ def dashboard_admin():
         by="待退回 Saldo Pendente",
         ascending=False
     )    
-    st.dataframe(
-    grafico[["SC 基地", "待退回 Saldo Pendente"]],
-    use_container_width=True
+    
+    st.subheader("📉 各SC待退回数量 Saldo pendente por SC")
+    grafico = (
+         resumo_filtrado[resumo_filtrado["待退回 Saldo Pendente"] > 0]
+    .sort_values(by="待退回 Saldo Pendente", ascending=False)
 )
-
-    st.bar_chart(
-      data=grafico,
-      x="SC 基地",
-      y="待退回 Saldo Pendente"
-)
-
-
     if not grafico.empty:
+      grafico = grafico.set_index("SC 基地")
+
       st.bar_chart(
-        grafico.set_index("SC 基地")["待退回 Saldo Pendente"]
-    )
+         grafico["待退回 Saldo Pendente"]
+    )   
+    else:
+        st.info("Nenhuma SC com saldo pendente.")
+
 
     st.subheader("🚨 问题基地排名 Ranking Bases Ofensoras")
     ranking = resumo.sort_values(by="待退回 Saldo Pendente", ascending=False)
