@@ -586,6 +586,9 @@ def cadastro_massivo():
             if "sc" not in df.columns or "quantidade" not in df.columns:
                 st.error("CSV必须包含列: sc 和 quantidade | O CSV precisa ter as colunas: sc e quantidade")
                 return
+            df = df.rename(columns={
+               "placa": "🏢 SC/Base Retorno"
+})
 
             st.dataframe(df, use_container_width=True)
 
