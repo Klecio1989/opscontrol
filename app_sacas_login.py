@@ -713,9 +713,13 @@ def historico():
             df = df[df["sc"] == filtro]
 
     if "foto_url" in df.columns:
-        df["证据 Evidência"] = df["foto_url"].apply(lambda x: "🔗 Ver foto" if x else "")
+      df["证据 Evidência"] = df["foto_url"].apply(lambda x: "🔗 Ver foto" if x else "")
 
-    st.dataframe(df, use_container_width=True)
+    df_exibir = df.rename(columns={
+      "placa": "🏢 SC/Base Retorno"
+})
+
+    st.dataframe(df_exibir, use_container_width=True)
 
     st.subheader("🔍 查看照片证据 Visualizar Evidência")
 
