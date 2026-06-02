@@ -461,15 +461,6 @@ def dashboard_admin():
     st.subheader("📋 各基地汇总 Resumo por Base")
     st.dataframe(resumo_filtrado, use_container_width=True)
 
-    st.subheader("📉 各SC待退回数量 Saldo pendente por SC")
-
-    grafico = resumo_filtrado.copy()
-
-    grafico = grafico[grafico["待退回 Saldo Pendente"] > 0]
-    grafico = grafico.sort_values(
-        by="待退回 Saldo Pendente",
-        ascending=False
-    )    
     
     st.subheader("📉 各SC待退回数量 Saldo pendente por SC")
     grafico = (
