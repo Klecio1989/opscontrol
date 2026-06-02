@@ -624,7 +624,7 @@ def lancar_devolucao(sc_usuario=None):
 
     data_devolucao = st.date_input("退回日期 Data da devolução", value=date.today())
     id_retorno = st.text_input("退回ID / 调拨ID ID de retorno / transferência")
-    placa = st.text_input("车辆牌照 Placa do veículo")
+    placa = st.text_input("网点回收量 🏢 SC/Base Retorno")
     quantidade = st.number_input("退回数量 Quantidade devolvida", min_value=1, step=1)
     observacao = st.text_area(
     "📝 Observação",
@@ -657,11 +657,11 @@ def lancar_devolucao(sc_usuario=None):
 
     if st.button("保存退回 Salvar devolução"):
         if not id_retorno.strip():
-            st.error("Informe o ID de retorno.")
+            st.error("Informe a sc ou base retorno.")
             return
 
         if not placa.strip():
-            st.error("Informe a placa.")
+            st.error("Informe a sc ou base retorno.")
             return
 
         if foto_final is None:
