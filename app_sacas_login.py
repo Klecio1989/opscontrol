@@ -461,16 +461,25 @@ def dashboard_admin():
     st.dataframe(resumo_filtrado, use_container_width=True)
 
     st.subheader("📉 各SC待退回数量 Saldo pendente por SC")
- 
-    grafico = (
-      resumo_filtrado[
-         resumo_filtrado["待退回 Saldo Pendente"] > 0
-    ]
-      .sort_values(
-          by="待退回 Saldo Pendente",
-          ascending=False
-    )
+
+    grafico = resumo_filtrado.copy()
+
+    grafico = grafico[grafico["待退回 Saldo Pendente"] > 0]
+    grafico = grafico.sort_values(
+        by="待退回 Saldo Pendente",
+        ascending=False
+    )    
+    st.dataframe(
+    grafico[["SC 基地", "待退回 Saldo Pendente"]],
+    use_container_width=True
 )
+
+    st.bar_chart(
+      data=grafico,
+      x="SC 基地",
+      y="待退回 Saldo Pendente"
+)
+
 
     if not grafico.empty:
       st.bar_chart(
