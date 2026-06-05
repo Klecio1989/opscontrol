@@ -187,23 +187,24 @@ div[role="radiogroup"] {
 [data-testid="stAlert"] {
     border-radius: 10px;
 }
-            
 /* =========================
-   BOTÃO ABRIR/FECHAR SIDEBAR
+   FUNDO BRANCO DA SETA SIDEBAR
 ========================= */
 
-[data-testid="collapsedControl"] {
-    background-color: white !important;
-    border: 1px solid #d9d9d9 !important;
-    border-radius: 8px !important;
-    padding: 6px !important;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.20) !important;
+button[kind="header"],
+[data-testid="collapsedControl"],
+[data-testid="stSidebarCollapseButton"] {
+    background: #ffffff !important;
+    color: #000000 !important;
 }
 
-[data-testid="collapsedControl"] svg {
-    color: black !important;
-    fill: black !important;
-}
+button[kind="header"] svg,
+[data-testid="collapsedControl"] svg,
+[data-testid="stSidebarCollapseButton"] svg {
+    color: #000000 !important;
+    fill: #000000 !important;
+}            
+
 /* =========================
    MOBILE
 ========================= */
