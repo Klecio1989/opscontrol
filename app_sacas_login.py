@@ -26,7 +26,7 @@ SC_LISTA = [
     "MG CGE", "BA FEC", "PE JGS", "PR SJS", "RJ SJM", "CE FOR",
     "SN RAO", "SC BNU", "PI THE", "DC SRR-ES", "RS NSR", "MT CGB",
     "GO GYN", "DF BSB", "RO PVH", "SE AJU", "BA VDC", "PA STM",
-    "PA MRB", "TO PMW", "MS CGR", "ES SRR","PA ANA","SPS BRE","SP GRU"
+    "PA MRB", "TO PMW", "MS CGR","PA ANA","SPS BRE","SP GRU"
 
 ]
 
@@ -55,7 +55,6 @@ USUARIOS = {
     "MRB": {"senha": "mrb123", "perfil": "sc", "sc": "PA MRB"},
     "PMW": {"senha": "pmw123", "perfil": "sc", "sc": "TO PMW"},
     "CGR": {"senha": "cgr123", "perfil": "sc", "sc": "MS CGR"},
-    "SRR": {"senha": "srr123", "perfil": "sc", "sc": "ES SRR"},
     "ana": {"senha": "ana123", "perfil": "sc", "sc": "PA ANA"}
 }
 
