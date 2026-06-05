@@ -187,23 +187,21 @@ div[role="radiogroup"] {
 [data-testid="stAlert"] {
     border-radius: 10px;
 }
+
 /* =========================
-   FUNDO BRANCO DA SETA SIDEBAR
+   SETA SIDEBAR
 ========================= */
 
-button[kind="header"],
-[data-testid="collapsedControl"],
-[data-testid="stSidebarCollapseButton"] {
-    background: #ffffff !important;
-    color: #000000 !important;
+button[kind="header"] {
+    background-color: white !important;
+    color: black !important;
+    border-radius: 0px !important;
 }
 
-button[kind="header"] svg,
-[data-testid="collapsedControl"] svg,
-[data-testid="stSidebarCollapseButton"] svg {
-    color: #000000 !important;
-    fill: #000000 !important;
-}            
+button[kind="header"] svg {
+    fill: black !important;
+    color: black !important;
+}          
 
 /* =========================
    MOBILE
