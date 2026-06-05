@@ -55,7 +55,7 @@ USUARIOS = {
     "MRB": {"senha": "mrb123", "perfil": "sc", "sc": "PA MRB"},
     "PMW": {"senha": "pmw123", "perfil": "sc", "sc": "TO PMW"},
     "CGR": {"senha": "cgr123", "perfil": "sc", "sc": "MS CGR"},
-    "ana": {"senha": "ana123", "perfil": "sc", "sc": "PA ANA"}
+    "ana": {"senha": "ana123", "perfil": "sc", "sc": "PA ANA"},
 }
 
 st.markdown("""
