@@ -204,31 +204,6 @@ div[role="radiogroup"] {
     color: black !important;
     fill: black !important;
 }
-            
-/* =========================
-   BOTÃO ABRIR/FECHAR SIDEBAR - WEB E MOBILE
-========================= */
-
-[data-testid="collapsedControl"],
-button[kind="header"],
-[data-testid="stSidebarCollapseButton"] {
-    background-color: white !important;
-    border: 1px solid #d9d9d9 !important;
-    border-radius: 8px !important;
-    color: black !important;
-    width: 42px !important;
-    height: 42px !important;
-    padding: 6px !important;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.20) !important;
-}
-
-[data-testid="collapsedControl"] svg,
-button[kind="header"] svg,
-[data-testid="stSidebarCollapseButton"] svg {
-    color: black !important;
-    fill: black !important;
-}
-
 /* =========================
    MOBILE
 ========================= */
@@ -944,4 +919,3 @@ else:
             lancar_devolucao(st.session_state["sc"])
         elif menu == "我的历史 Meu Histórico":
             historico()
-
