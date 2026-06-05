@@ -189,19 +189,22 @@ div[role="radiogroup"] {
 }
 
 /* =========================
-   SETA SIDEBAR
+   FUNDO BRANCO DA SETA SIDEBAR
 ========================= */
 
-button[kind="header"] {
-    background-color: white !important;
-    color: black !important;
-    border-radius: 0px !important;
+button[kind="header"],
+[data-testid="collapsedControl"],
+[data-testid="stSidebarCollapseButton"] {
+    background: #ffffff !important;
+    color: #000000 !important;
 }
 
-button[kind="header"] svg {
-    fill: black !important;
-    color: black !important;
-}          
+button[kind="header"] svg,
+[data-testid="collapsedControl"] svg,
+[data-testid="stSidebarCollapseButton"] svg {
+    color: #000000 !important;
+    fill: #000000 !important;
+}            
 
 /* =========================
    MOBILE
