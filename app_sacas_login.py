@@ -282,15 +282,33 @@ def carregar_metas():
 
 
 def carregar_devolucoes():
-    res = (
-        supabase
-        .table("devolucoes")
-        .select("*")
-        .range(0, 50000)
-        .execute()
-    )
+    todos = []
+    inicio = 0
+    tamanho = 1000
 
-    return pd.DataFrame(res.data)
+    while True:
+        res = (
+            supabase
+            .table("devolucoes")
+            .select("*")
+            .order("created_at", desc=False)
+            .range(inicio, inicio + tamanho - 1)
+            .execute()
+        )
+
+        dados = res.data or []
+
+        if not dados:
+            break
+
+        todos.extend(dados)
+
+        if len(dados) < tamanho:
+            break
+
+        inicio += tamanho
+
+    return pd.DataFrame(todos)
 
 
 def upload_foto(arquivo, sc, id_retorno):
