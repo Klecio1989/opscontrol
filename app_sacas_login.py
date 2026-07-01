@@ -286,7 +286,7 @@ def carregar_devolucoes():
         supabase
         .table("devolucoes")
         .select("*")
-        .range(0, 10000)
+        .range(0, 50000)
         .execute()
     )
 
