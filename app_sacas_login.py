@@ -283,7 +283,18 @@ def carregar_metas():
 
 def carregar_devolucoes():
     res = supabase.table("devolucoes").select("*").execute()
-    return pd.DataFrame(res.data)
+
+    df = pd.DataFrame(res.data)
+
+    st.write("Total de registros:", len(df))
+
+    st.write(
+        df.groupby("sc")["quantidade"]
+        .sum()
+        .reset_index()
+    )
+
+    return df
 
 
 def upload_foto(arquivo, sc, id_retorno):
