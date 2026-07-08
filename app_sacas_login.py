@@ -816,9 +816,51 @@ def limpar_metas():
 def exportar():
     st.subheader("📤 导出数据 Exportar Bases")
 
+    col1, col2, col3 = st.columns(3)
+
+    with col1:
+        data_inicio = st.date_input(
+            "📅 Data Inicial",
+            value=date.today().replace(day=1)
+        )
+
+    with col2:
+        data_final = st.date_input(
+            "📅 Data Final",
+            value=date.today()
+        )
+
+    with col3:
+        sc_filtro = st.selectbox(
+            "🏢 SC",
+            ["Todos"] + SC_LISTA
+        )
+
+    aplicar = st.button("🔍 Aplicar Filtros")
+
     resumo = gerar_resumo()
     devolucoes = carregar_devolucoes()
     metas = carregar_metas()
+
+    if aplicar:
+        if not devolucoes.empty:
+            devolucoes["data_devolucao"] = pd.to_datetime(
+                devolucoes["data_devolucao"]
+            ).dt.date
+
+            devolucoes = devolucoes[
+                (devolucoes["data_devolucao"] >= data_inicio) &
+                (devolucoes["data_devolucao"] <= data_final)
+            ]
+
+            if sc_filtro != "Todos":
+                devolucoes = devolucoes[devolucoes["sc"] == sc_filtro]
+
+        if not metas.empty and sc_filtro != "Todos":
+            metas = metas[metas["sc"] == sc_filtro]
+
+        if not resumo.empty and sc_filtro != "Todos":
+            resumo = resumo[resumo["SC 基地"] == sc_filtro]
 
     st.write("### 汇总数据 Resumo consolidado")
     st.dataframe(resumo, use_container_width=True)
