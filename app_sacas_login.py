@@ -811,7 +811,80 @@ def limpar_metas():
                     st.success("系统已全部清空 Sistema zerado com sucesso.")
             elif senha_reset:
                 st.error("管理员密码错误 Senha admin incorreta.")
+def excluir_devolucao():
+    st.subheader("🗑️ Excluir Devolução")
 
+    st.warning(
+        "Use esta opção apenas para corrigir lançamentos realizados incorretamente."
+    )
+
+    id_excluir = st.number_input(
+        "Informe o ID do registro",
+        min_value=1,
+        step=1
+    )
+
+    if st.button("🔍 Localizar registro"):
+        try:
+            resposta = (
+                supabase
+                .table("devolucoes")
+                .select("*")
+                .eq("id", int(id_excluir))
+                .execute()
+            )
+
+            registros = resposta.data or []
+
+            if not registros:
+                st.error("Nenhum registro encontrado com este ID.")
+            else:
+                st.session_state["registro_excluir"] = registros[0]
+
+        except Exception as e:
+            st.error(f"Erro ao localizar registro: {e}")
+
+    registro = st.session_state.get("registro_excluir")
+
+    if registro and int(registro.get("id", 0)) == int(id_excluir):
+        st.write("### Registro localizado")
+
+        st.json({
+            "ID": registro.get("id"),
+            "SC": registro.get("sc"),
+            "ID Retorno": registro.get("id_retorno"),
+            "SC/Base Retorno": registro.get("placa"),
+            "Quantidade": registro.get("quantidade"),
+            "Data": registro.get("data_devolucao"),
+            "Usuário": registro.get("usuario"),
+            "Observação": registro.get("observacao")
+        })
+
+        confirmar = st.checkbox(
+            "Confirmo que desejo excluir definitivamente este registro."
+        )
+
+        if confirmar:
+            if st.button("🗑️ EXCLUIR DEVOLUÇÃO"):
+                try:
+                    (
+                        supabase
+                        .table("devolucoes")
+                        .delete()
+                        .eq("id", int(id_excluir))
+                        .execute()
+                    )
+
+                    st.session_state.pop("registro_excluir", None)
+
+                    st.success(
+                        f"Registro {int(id_excluir)} excluído com sucesso."
+                    )
+
+                    st.rerun()
+
+                except Exception as e:
+                    st.error(f"Erro ao excluir devolução: {e}")
 
 def exportar():
     st.subheader("📤 导出数据 Exportar Bases")
@@ -952,6 +1025,7 @@ else:
                 "批量登记 Cadastro massivo",
                 "退回登记 Lançar devolução",
                 "历史 Histórico",
+                "🗑️ Excluir devolução",
                 "清理数据 Limpar metas",
                 "导出 Exportar"
             ]
@@ -967,6 +1041,8 @@ else:
             lancar_devolucao()
         elif menu == "历史 Histórico":
             historico()
+        elif menu == "🗑️ Excluir devolução":
+            excluir_devolucao()
         elif menu == "清理数据 Limpar metas":
             limpar_metas()
         elif menu == "导出 Exportar":
